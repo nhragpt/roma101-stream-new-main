@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roma 101</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+    </style>
+    <script>
+        // Store your SAS token here (keep this secret!)
+        const SAS_TOKEN = 'sp=r&st=2026-01-06T09:32:49Z&se=2026-01-31T17:47:49Z&spr=https&sv=2024-11-04&sr=c&sig=COjbOPY8mC3uuPLzNMBAHFMCcN%2FqmDg5a5O6YvoX%2B7U%3D';
+        const STORAGE_URL = 'https://vesselimagefeedroma101.blob.core.windows.net';
+        const CONTAINER = '$web';
+        
+        let lastVideoSource = '';
+        
+        async function checkFileExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                console.error('Error checking file existence:', error);
+                return false;
+            }
+        }
+        
+        function getTimestampedFilename(minutesBack) {
+            const now = new Date();
+            now.setUTCMinutes(now.getUTCMinutes() - minutesBack);
+            const year = now.getUTCFullYear();
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            const hours = String(now.getUTCHours()).padStart(2, '0');
+            const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}_${hours}-${minutes}.mp4`;
+        }
+        
+        async function updateVideoSource() {
+            const video = document.querySelector('.video-background');
+            const filename = getTimestampedFilename(3);
+            const url = `${STORAGE_URL}/${CONTAINER}/${filename}?${SAS_TOKEN}`;
+            
+            const fileExists = await checkFileExists(url);
+            
+            if (fileExists) {
+                lastVideoSource = url;
+            }
+            
+            if (lastVideoSource) {
+                video.src = lastVideoSource;
+                video.play().catch(err => console.error('Playback error:', err));
+                console.log(`Video source updated`);
+            }
+        }
+        
+        setInterval(updateVideoSource, 60000);
+        
+        window.onload = function() {
+            updateVideoSource();
+            const video = document.querySelector('.video-background');
+            video.addEventListener('ended', function() {
+                this.play();
+            });
+        };
+    </script>
+</head>
+<body>
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</body>
+</html>
