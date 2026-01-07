@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
-    <title>Monjasa Vessel Feed Viewer </title>
+    <title>Monjasa Vessel Feed</title>
     <style>
         * {
             margin: 0;
@@ -390,6 +390,20 @@
         .video-page.hide-controls .controls-overlay {
             pointer-events: auto;
         }
+        
+        /* Fullscreen mode styles */
+        .video-page.fullscreen-mode .control-btn.back-btn {
+            display: none;
+        }
+        
+        /* iOS fullscreen video styles */
+        video::-webkit-media-controls-fullscreen-button {
+            display: none;
+        }
+        
+        video::-webkit-media-controls {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -434,7 +448,7 @@
             </div>
             <div class="control-buttons">
                 <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
-                <button class="control-btn" onclick="goBackToSelection()">← Back</button>
+                <button class="control-btn back-btn" onclick="goBackToSelection()">← Back</button>
             </div>
         </div>
         
@@ -607,7 +621,7 @@
             if (!currentVessel) return;
             
             const config = vesselConfig[currentVessel];
-            const filename = getTimestampedFilename(660);
+            const filename = getTimestampedFilename(840);
             const url = `${config.storageUrl}/${config.container}/${filename}?${config.sasToken}`;
             
             loading.style.display = 'block';
@@ -628,21 +642,14 @@
         
         function updateTimeDisplay() {
     const now = new Date();
-
-    // Subtract 3 minutes from LOCAL time
     now.setMinutes(now.getMinutes() - 3);
 
-    // Format as HH:MM:SS in local time
-    const timeString = now.toLocaleTimeString(undefined, {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
 
-    videoTimeDisplay.textContent = timeString;
+    videoTimeDisplay.textContent = `${h}:${m}:${s}`;
 }
-
         
         // Video event handlers
         videoPlayer.addEventListener('ended', function() {
@@ -684,12 +691,65 @@
         
         // Fullscreen
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                videoPage.requestFullscreen().catch(err => {
-                    console.error('Error attempting to enable fullscreen:', err);
-                });
+            const elem = videoPage;
+            
+            // Check if already in fullscreen
+            const isFullscreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement ||
+                                document.msFullscreenElement;
+            
+            if (!isFullscreen) {
+                // Enter fullscreen with cross-browser support
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    // Safari/iOS
+                    elem.webkitRequestFullscreen();
+                } else if (elem.webkitEnterFullscreen) {
+                    // Older iOS
+                    videoPlayer.webkitEnterFullscreen();
+                } else if (elem.mozRequestFullScreen) {
+                    // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) {
+                    // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+                videoPage.classList.add('fullscreen-mode');
             } else {
-                document.exitFullscreen();
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.webkitCancelFullScreen) {
+                    document.webkitCancelFullScreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                videoPage.classList.remove('fullscreen-mode');
+            }
+        }
+        
+        // Listen for fullscreen changes to update state
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        
+        function handleFullscreenChange() {
+            const isFullscreen = document.fullscreenElement || 
+                                document.webkitFullscreenElement || 
+                                document.mozFullScreenElement ||
+                                document.msFullscreenElement;
+            
+            if (isFullscreen) {
+                videoPage.classList.add('fullscreen-mode');
+            } else {
+                videoPage.classList.remove('fullscreen-mode');
             }
         }
         
