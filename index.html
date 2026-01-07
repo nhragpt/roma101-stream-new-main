@@ -429,7 +429,7 @@
                 <h2 id="vesselName">Roma 101</h2>
                 <div class="status">
                     <span class="status-dot"></span>
-                    <span>2 Mins Ago</span>
+                    <span>3 Mins Ago</span>
                 </div>
             </div>
             <div class="control-buttons">
@@ -607,7 +607,7 @@
             if (!currentVessel) return;
             
             const config = vesselConfig[currentVessel];
-            const filename = getTimestampedFilename(600);
+            const filename = getTimestampedFilename(660);
             const url = `${config.storageUrl}/${config.container}/${filename}?${config.sasToken}`;
             
             loading.style.display = 'block';
@@ -627,11 +627,22 @@
         }
         
         function updateTimeDisplay() {
-            const now = new Date();
-            now.setUTCMinutes(now.getUTCMinutes() - 3);
-            const timeString = now.toISOString().substring(11, 19);
-            videoTimeDisplay.textContent = timeString;
-        }
+    const now = new Date();
+
+    // Subtract 3 minutes from LOCAL time
+    now.setMinutes(now.getMinutes() - 3);
+
+    // Format as HH:MM:SS in local time
+    const timeString = now.toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
+    videoTimeDisplay.textContent = timeString;
+}
+
         
         // Video event handlers
         videoPlayer.addEventListener('ended', function() {
