@@ -621,7 +621,7 @@
             if (!currentVessel) return;
             
             const config = vesselConfig[currentVessel];
-            const filename = getTimestampedFilename(840);
+            const filename = getTimestampedFilename(3);
             const url = `${config.storageUrl}/${config.container}/${filename}?${config.sasToken}`;
             
             loading.style.display = 'block';
