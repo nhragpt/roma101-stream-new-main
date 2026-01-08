@@ -392,7 +392,9 @@
         }
         
         /* Fullscreen mode styles */
-        .video-page.fullscreen-mode .control-btn.back-btn {
+        .video-page.fullscreen-mode .control-btn.back-btn,
+        .video-page.fullscreen-mode .control-btn:first-child,
+        .video-page.fullscreen-mode .zoom-controls {
             display: none;
         }
         
@@ -648,15 +650,15 @@
         }
         
         function updateTimeDisplay() {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - 3);
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - 3);
 
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
 
-    videoTimeDisplay.textContent = `${h}:${m}:${s}`;
-}
+            videoTimeDisplay.textContent = `${h}:${m}:${s}`;
+        }
         
         // Video event handlers
         videoPlayer.addEventListener('ended', function() {
