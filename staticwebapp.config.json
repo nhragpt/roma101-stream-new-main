@@ -1,7 +1,11 @@
 {
   "routes": [
     {
-      "route": "/isthmusTrader",
+      "route": "/isthmusTraderYodeck",
+      "allowedRoles": [ "anonymous" ]
+    },
+    {
+      "route": "/roma101Yodeck",
       "allowedRoles": [ "anonymous" ]
     },
     {
