@@ -1,8 +1,12 @@
 {
   "routes": [
     {
+      "route": "/isthmusTrader",
+      "allowedRoles": [ "anonymous" ]
+    },
+    {
       "route": "/*",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": [ "authenticated" ]
     }
   ],
   "responseOverrides": {
